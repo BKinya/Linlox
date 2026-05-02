@@ -42,8 +42,7 @@ class Scanner(private val source: String) {
                     addToken(TokenType.SLASH)
                 }
             }
-            ' ', '\r', '\n' -> { /* Ignore whitespace */
-            }
+            ' ', '\r', '\n' -> { /* Ignore whitespace */ }
             '\n' -> line++
             '"' -> string()
             else -> {
@@ -70,7 +69,7 @@ class Scanner(private val source: String) {
         while(isDigit(peek())) advance()
 
         if (peek() == '.' && isDigit(peekNext())) {
-            // consume ''
+            // consume '.'
             advance()
 
           while(isDigit(peek())) advance()
