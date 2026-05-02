@@ -1,4 +1,4 @@
-package linlox
+package lox
 
 enum class TokenType {
     // Single character tokens

@@ -1,7 +1,6 @@
-package linlox
+package lox
 
 
-import com.sun.jdi.Value
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -56,7 +55,7 @@ private fun run(source: String) {
 }
 
 fun error(line: Int, message: String) {
-    report(line, "","Error: $message")
+    report(line, "", "Error: $message")
 }
 
 private fun report(line: Int, where: String, message: String) {

@@ -1,4 +1,4 @@
-package lox;
+package lox_v0;
 
 public class Token {
     final TokenType type;

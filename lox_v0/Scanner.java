@@ -1,12 +1,11 @@
-package lox;
+package lox_v0;
 
-import javax.crypto.KEM;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static lox.TokenType.*;
+import static lox_v0.TokenType.*;
 
 public class Scanner {
 

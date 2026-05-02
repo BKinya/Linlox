@@ -1,4 +1,4 @@
-package lox;
+package lox_v0;
 
 import java.io.*;
 import java.nio.charset.Charset;

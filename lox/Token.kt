@@ -1,4 +1,4 @@
-package linlox
+package lox
 
 data class Token(
     val type: TokenType,
