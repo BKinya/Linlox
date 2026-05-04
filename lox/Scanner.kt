@@ -29,7 +29,7 @@ class Scanner(private val source: String) {
             '.' -> addToken(TokenType.DOT)
             '-' -> addToken(TokenType.MINUS)
             '+' -> addToken(TokenType.PLUS)
-            ':' -> addToken(TokenType.SEMICOLON)
+            ';' -> addToken(TokenType.SEMICOLON)
             '*' -> addToken(TokenType.STAR)
             '!' -> addToken(if (match('=')) TokenType.BANG_EQUAL else TokenType.BANG)
             '=' -> addToken(if (match('=')) TokenType.EQUAL_EQUAL else TokenType.EQUAL)
@@ -38,41 +38,107 @@ class Scanner(private val source: String) {
             '/' -> {
                 if (match('/')) {
                     while (peek() != '\n' && !isAtEnd()) advance()
+                } else if (match('*')) {
+                    blockCommentWithNesting()
                 } else {
                     addToken(TokenType.SLASH)
                 }
             }
-            ' ', '\r', '\n' -> { /* Ignore whitespace */ }
+
+            ' ', '\r', '\t' -> { /* Ignore whitespace */
+            }
+
             '\n' -> line++
             '"' -> string()
             else -> {
-                if (isDigit(c)){
+                if (isDigit(c)) {
                     number()
-                }else if (isAlpha(c)){
+                } else if (isAlpha(c)) {
                     identifier()
-                }
-                else{
+                } else {
                     error(line, "Unexpected character")
                 }
             }
         }
     }
 
+    private fun blockComment() {
+        // keep going until we hit */ or end of the file
+        while (!isAtEnd()) {
+            if (peek() == '*' && peekNext() == '/') {
+                break
+            }
+
+            if (peek() == '\n') line++
+            advance()
+        }
+
+        if (isAtEnd()) {
+            error(line, "Unterminated block comment")
+            return
+        }
+
+        // found */ so consume both
+        advance()
+        advance()
+    }
+
+    /**
+     * Supporting nested comments we now move to territory of
+     * Context Free Languages
+     * We'll need to track how many levels deep to know when
+     * we've actually reached the end of the comment
+     *
+     * Exampl of a nested comment
+     *  /*
+     *      Outer comment
+     *      /*
+     *          Inner comment
+     *      */
+     *      Closing outer comment
+     *   */
+     */
+
+    private fun blockCommentWithNesting() {
+        var depth = 1
+        while (depth > 0 && !isAtEnd()) {
+            // Detect a nested opening: /*
+            if (peek() == '/' && peekNext() == '*') {
+                advance() // /
+                advance() // *
+                depth++
+            } else if (peek() == '*' && peekNext() == '/') {
+                // Detect a closing */
+                advance() // *
+                advance() // /
+                depth--
+            } else {
+                // Regular charactes including new lines
+                if (peek() == '\n') line++
+                advance()
+            }
+        }
+        if (depth > 0 && isAtEnd()) {
+            error(line, "Unterminated block comment")
+        }
+    }
+
+
     private fun identifier() {
-        while(isAlphaNumeric(peek())) advance()
+        while (isAlphaNumeric(peek())) advance()
         val text = source.substring(start, current)
         val type = keywords[text]
         addToken(type ?: TokenType.IDENTIFIER)
     }
 
-    private fun number(){
-        while(isDigit(peek())) advance()
+    private fun number() {
+        while (isDigit(peek())) advance()
 
         if (peek() == '.' && isDigit(peekNext())) {
             // consume '.'
             advance()
 
-          while(isDigit(peek())) advance()
+            while (isDigit(peek())) advance()
         }
         addToken(TokenType.NUMBER, source.substring(start, current).toDouble())
     }
@@ -102,14 +168,14 @@ class Scanner(private val source: String) {
     }
 
     private fun peekNext(): Char {
-        if(current+ 1 >= source.length) return '\u0000'
+        if (current + 1 >= source.length) return '\u0000'
         return source[current + 1]
     }
 
-    private fun isAlphaNumeric(c: Char): Boolean  = isAlpha(c) || isDigit(c)
+    private fun isAlphaNumeric(c: Char): Boolean = isAlpha(c) || isDigit(c)
 
     private fun isAlpha(c: Char): Boolean {
-        return (c in 'a'..'z') || (c in 'A'..'Z')  || (c == '_')
+        return (c in 'a'..'z') || (c in 'A'..'Z') || (c == '_')
     }
 
     private fun isDigit(c: Char): Boolean {
@@ -138,8 +204,8 @@ class Scanner(private val source: String) {
     }
 
     companion object {
-        private val keywords = mapOf<String, TokenType>(
-           "and" to TokenType.AND,
+        private val keywords = mapOf(
+            "and" to TokenType.AND,
             "class" to TokenType.CLASS,
             "else" to TokenType.ELSE,
             "false" to TokenType.FALSE,
@@ -147,7 +213,7 @@ class Scanner(private val source: String) {
             "fun" to TokenType.FUN,
             "if" to TokenType.IF,
             "nil" to TokenType.NIL,
-           "or" to TokenType.OR,
+            "or" to TokenType.OR,
             "print" to TokenType.PRINT,
             "return" to TokenType.RETURN,
             "super" to TokenType.SUPER,
