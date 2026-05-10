@@ -113,7 +113,7 @@ class Scanner(private val source: String) {
                 advance() // /
                 depth--
             } else {
-                // Regular charactes including new lines
+                // Regular characters including new lines
                 if (peek() == '\n') line++
                 advance()
             }
