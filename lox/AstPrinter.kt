@@ -16,6 +16,10 @@ fun main(args: Array<String>) {
     println(expression.evaluate())
 }
 
+fun Ternary.evaluateTernary(): String {
+    return parenthesize("?", condition, thenBranch, elseBranch)
+}
+
 fun Binary.evaluateBinary(): String {
     return parenthesize(operator.lexeme, left, right)
 }

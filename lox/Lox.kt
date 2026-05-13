@@ -47,10 +47,12 @@ private fun runPrompt() {
 private fun run(source: String) {
     val scanner = Scanner(source)
     val tokens: List<Token> = scanner.scanTokens()
+    val parser = Parser(tokens)
+    val expression = parser.parse()
 
-    for (t in tokens) {
-        println(t)
-    }
+    if (hadError) return
+
+    println(expression?.evaluate())
 }
 
 fun error(line: Int, message: String) {
@@ -60,4 +62,13 @@ fun error(line: Int, message: String) {
 private fun report(line: Int, where: String, message: String) {
     System.err.println("[line $line] Error $where: $message")
     hadError = true
+}
+
+
+fun error(token: Token, message: String) {
+    if (token.type == TokenType.EOF) {
+        report(token.line, "at end", message)
+    } else {
+        report(token.line, "at '${token.lexeme}'", message)
+    }
 }
