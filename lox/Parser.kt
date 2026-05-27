@@ -51,7 +51,7 @@ class Parser(private val tokens: List<Token>) {
     private fun condition(): Expr {
         var expr = equality()
         while (match(TokenType.QUESTION)) {
-            val thenBranch = expression()
+            val thenBranch = condition()
             consume(TokenType.COLON, "Expected ':' after the condition")
             val elseBranch = condition()
             expr = Ternary(expr, thenBranch, elseBranch)
@@ -179,8 +179,7 @@ class Parser(private val tokens: List<Token>) {
                 TokenType.RETURN,
                     -> return
 
-                else -> { /* Continue to advance*/
-                }
+                else -> { /* Continue to advance*/ }
             }
 
             advance()

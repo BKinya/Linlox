@@ -55,7 +55,6 @@ private fun run(source: String) {
 
     if (hadError) return
 
-    println(expression?.evaluate())
     expression?.let { interpreter.interpret(it) }
 }
 
