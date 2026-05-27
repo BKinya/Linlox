@@ -5,9 +5,10 @@ Lox interpreter implementation written in Kotlin
 
 ```ebnf
 Expressions
+
 expression  -> comma
-comma       -> condition ("," condition) *
-condition   -> equality (? expression : condition) ?
+comma       -> condition ("," condition)*
+condition   -> equality (? expression : condition)?
 equality    -> comparison ( ( "!=" | "==" ) comparison )*
 comparison  -> term ( ( "<" | "<=" | ">" | ">=") term )* ;
 term        -> factor ( ( "-" | "+" ) factor )* ;
