@@ -1,7 +1,5 @@
 package lox
 
-import com.sun.jdi.Value
-
 class Parser(private val tokens: List<Token>) {
 
     private class ParseError : RuntimeException()
@@ -18,10 +16,13 @@ class Parser(private val tokens: List<Token>) {
         /**
          * Detect the "missing left operand" error first
          */
-        if (match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL,
+        if (match(
+                TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL,
                 TokenType.GREATER, TokenType.GREATER_EQUAL,
                 TokenType.LESS, TokenType.LESS_EQUAL,
-               TokenType.PLUS, TokenType.STAR, TokenType.SLASH)) {
+                TokenType.PLUS, TokenType.STAR, TokenType.SLASH
+            )
+        ) {
             val operator = previous()
             error(operator, "Expected left operand for binary operator")
 
@@ -36,20 +37,20 @@ class Parser(private val tokens: List<Token>) {
         return comma()
     }
 
-   private fun comma(): Expr {
-       var expr = condition()
+    private fun comma(): Expr {
+        var expr = condition()
 
-       while (match(TokenType.COMMA)){
-           val operator = previous()
-           val right = condition()
-           expr = Binary(expr, operator, right)
-       }
-       return expr
-   }
+        while (match(TokenType.COMMA)) {
+            val operator = previous()
+            val right = condition()
+            expr = Binary(expr, operator, right)
+        }
+        return expr
+    }
 
     private fun condition(): Expr {
         var expr = equality()
-        while (match(TokenType.QUESTION)){
+        while (match(TokenType.QUESTION)) {
             val thenBranch = expression()
             consume(TokenType.COLON, "Expected ':' after the condition")
             val elseBranch = condition()
@@ -57,7 +58,6 @@ class Parser(private val tokens: List<Token>) {
         }
         return expr
     }
-
 
 
     private fun equality(): Expr {
@@ -94,7 +94,7 @@ class Parser(private val tokens: List<Token>) {
 
     private fun factor(): Expr {
         var expr = unary()
-        while (match(TokenType.BANG, TokenType.MINUS)) {
+        while (match(TokenType.SLASH, TokenType.STAR)) {
             val operator = previous()
             val right = unary()
             expr = Binary(expr, operator, right)

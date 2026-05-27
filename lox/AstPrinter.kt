@@ -15,6 +15,13 @@ fun main(args: Array<String>) {
 
     println(expression.evaluate())
 }
+fun Expr.evaluate(): String = when (this) {
+    is Binary -> evaluateBinary()
+    is Grouping -> evaluateGrouping()
+    is Literal -> evaluateLiteral()
+    is Unary -> evaluateUnary()
+    is Ternary -> evaluateTernary()
+}
 
 fun Ternary.evaluateTernary(): String {
     return parenthesize("?", condition, thenBranch, elseBranch)
@@ -34,7 +41,6 @@ fun Grouping.evaluateGrouping(): String {
 
 fun Literal.evaluateLiteral(): String {
     return value?.toString() ?: "nil"
-
 }
 
 private fun parenthesize(name: String, vararg exprs: Expr): String {

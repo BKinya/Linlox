@@ -10,6 +10,8 @@ import kotlin.jvm.Throws
 import kotlin.system.exitProcess
 
 var hadError = false
+var hadRuntimeError = false
+val interpreter = Interpreter()
 
 @Throws(IOException::class)
 fun main(args: Array<String>) {
@@ -29,6 +31,7 @@ private fun runFile(path: String) {
     run(String(bytes, Charset.defaultCharset()))
 
     if (hadError) exitProcess(65)
+    if (hadRuntimeError) exitProcess(70)
 }
 
 @Throws(IOException::class)
@@ -53,6 +56,7 @@ private fun run(source: String) {
     if (hadError) return
 
     println(expression?.evaluate())
+    expression?.let { interpreter.interpret(it) }
 }
 
 fun error(line: Int, message: String) {
@@ -71,4 +75,9 @@ fun error(token: Token, message: String) {
     } else {
         report(token.line, "at '${token.lexeme}'", message)
     }
+}
+
+fun runtimeError(error: RuntimeError) {
+    System.err.println("${error.message}\n[line ${error.token.line}]")
+    hadRuntimeError = true
 }

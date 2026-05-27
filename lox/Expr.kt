@@ -9,11 +9,4 @@ data class Unary(val operator: Token, val right: Expr) : Expr
 data class Literal(val value: Any?) : Expr
 
 
-fun Expr.evaluate(): String = when (this) {
-    is Binary -> evaluateBinary()
-    is Grouping -> evaluateGrouping()
-    is Literal -> evaluateLiteral()
-    is Unary -> evaluateUnary()
-    is Ternary -> evaluateTernary()
-}
 
