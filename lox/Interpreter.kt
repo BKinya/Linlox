@@ -11,7 +11,6 @@ class Interpreter {
         }
     }
 
-
     private fun evaluate(expr: Expr): Any? = when (expr) {
         is Binary -> evaluateBinary(expr)
         is Grouping -> evaluateGrouping(expr)
@@ -60,7 +59,7 @@ class Interpreter {
 
     private fun checkDivisorIsNonZero(operator: Token, right: Any?) {
         if (right is Double && right != 0.0) return
-        throw RuntimeError(operator,"Arithmetic exception / by zero")
+        throw RuntimeError(operator, "Arithmetic exception / by zero")
     }
 
     private fun evaluateBinary(expr: Binary): Any? {
@@ -112,6 +111,14 @@ class Interpreter {
             TokenType.STAR -> {
                 checkNumberOperands(expr.operator, left, right)
                 (left as Double) * (right as Double)
+            }
+
+            TokenType.COMMA -> {
+                // Evaluate left side to handle any side effects
+                evaluate(expr.left)
+
+                // Return the value of the right side
+                evaluate(expr.right)
             }
 
             else -> null

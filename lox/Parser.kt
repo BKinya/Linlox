@@ -1,5 +1,8 @@
 package lox
 
+import java.beans.Expression
+import kotlin.math.exp
+
 class Parser(private val tokens: List<Token>) {
 
     private class ParseError : RuntimeException()
@@ -39,7 +42,6 @@ class Parser(private val tokens: List<Token>) {
 
     private fun comma(): Expr {
         var expr = condition()
-
         while (match(TokenType.COMMA)) {
             val operator = previous()
             val right = condition()
@@ -51,7 +53,7 @@ class Parser(private val tokens: List<Token>) {
     private fun condition(): Expr {
         var expr = equality()
         while (match(TokenType.QUESTION)) {
-            val thenBranch = condition()
+            val thenBranch = expression()
             consume(TokenType.COLON, "Expected ':' after the condition")
             val elseBranch = condition()
             expr = Ternary(expr, thenBranch, elseBranch)
