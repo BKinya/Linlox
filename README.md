@@ -1,4 +1,4 @@
-# linlox 🚧
+# Linlox 🚧
 Lox interpreter implementation written in Kotlin
 
 ## Syntax BNF

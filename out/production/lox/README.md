@@ -1,13 +1,14 @@
 # linlox 🚧
-lox interpreter implementation written Kotlin
+Lox interpreter implementation written in Kotlin
 
 ## Syntax BNF
 
-```kotlin
+```ebnf
 Expressions
+
 expression  -> comma
-comma       -> condition ("," condition) *
-condition   -> equality (? expression : condition) ?
+comma       -> condition ("," condition)*
+condition   -> equality (? expression : condition)?
 equality    -> comparison ( ( "!=" | "==" ) comparison )*
 comparison  -> term ( ( "<" | "<=" | ">" | ">=") term )* ;
 term        -> factor ( ( "-" | "+" ) factor )* ;
@@ -17,8 +18,22 @@ primary     -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")"
 ```
 
 ## What's new
-- Supports C-style block comments /* ... */
-- 
+This implementation includes several enhancements beyond standard Lox specification
 
+- [Comma operator](https://en.wikipedia.org/wiki/Comma_operator): Evaluates expressions sequentially frrom left to right,
+discards the early results and returns the final value
+```kotlin
+var x =  (1, 3, 4); // x  is 4
+```
 
+- Ternary operator
+```kotlin
+var result = isTrue ? "yes" : "no";
+```
 
+- Supports C-style block comments 
+```kotlin
+/* This is a 
+   multiline block comment
+ */
+```
