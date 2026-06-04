@@ -1,18 +1,59 @@
 package lox
 
-import java.beans.Expression
-import kotlin.math.exp
-
 class Parser(private val tokens: List<Token>) {
 
     private class ParseError : RuntimeException()
 
     private var current = 0
 
-    fun parse(): Expr? = try {
-        expression()
-    } catch (e: ParseError) {
-        null
+    fun parse(): List<Stmt> {
+        val statements = mutableListOf<Stmt>()
+        while (!isAtEnd()) {
+            statements.add(declaration())
+        }
+        return statements
+    }
+
+    private fun declaration(): Stmt {
+        try {
+            if (match(TokenType.VAR)) return varDeclaration()
+            return statement()
+        } catch (error: ParseError) {
+            synchronize()
+            return Expression(Literal(null))
+        }
+    }
+
+    private fun varDeclaration(): Stmt {
+        val name = consume(TokenType.IDENTIFIER, "Expect a variable name")
+
+        var initializer: Expr? = null
+
+        if (match(TokenType.EQUAL)){
+            initializer = expression()
+        }
+
+        consume(TokenType.SEMICOLON, "Expect ';' after variable declaration")
+        return Var(name, initializer)
+
+    }
+
+    private fun statement(): Stmt{
+        if( match(TokenType.PRINT)) return printStatement()
+
+        return expressionStatement()
+    }
+
+    private fun printStatement(): Stmt{
+        val value = expression()
+        consume(TokenType.SEMICOLON, "Expect ';' after value")
+        return Print(value)
+    }
+
+    private fun expressionStatement(): Stmt {
+        val expr = expression()
+        consume(TokenType.SEMICOLON, "Expect ';' after value")
+        return Expression(expr)
     }
 
     private fun expression(): Expr {
@@ -123,6 +164,10 @@ class Parser(private val tokens: List<Token>) {
             val expr = expression()
             consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
             return Grouping(expr)
+        }
+
+        if (match(TokenType.IDENTIFIER)){
+            return Variable(previous())
         }
 
         throw error(peek(), "Expect expression.")

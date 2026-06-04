@@ -51,11 +51,11 @@ private fun run(source: String) {
     val scanner = Scanner(source)
     val tokens: List<Token> = scanner.scanTokens()
     val parser = Parser(tokens)
-    val expression = parser.parse()
+    val expressions = parser.parse()
 
     if (hadError) return
 
-    expression?.let { interpreter.interpret(it) }
+     interpreter.interpret(expressions)
 }
 
 fun error(line: Int, message: String) {

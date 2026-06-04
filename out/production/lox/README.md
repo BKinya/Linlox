@@ -1,9 +1,15 @@
-# linlox 🚧
+# Linlox 🚧
 Lox interpreter implementation written in Kotlin
 
 ## Syntax BNF
 
 ```ebnf
+
+program    -> statement* EOF ;
+statement  -> exprStmt | printStmt ;
+exprStmt   -> expression ";" ;
+printStmt  -> "print" expression ";" ;
+
 Expressions
 
 expression  -> comma

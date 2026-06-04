@@ -4,6 +4,14 @@ Lox interpreter implementation written in Kotlin
 ## Syntax BNF
 
 ```ebnf
+
+program       -> declarations* EOF ;
+declarations  -> varDecl | statement ;
+varDecl       -> "var" IDENTIFIER ( "=" expression )? ";" ;
+statement     -> exprStmt | printStmt ;
+exprStmt      -> expression ";" ;
+printStmt     -> "print" expression ";" ;
+
 Expressions
 
 expression  -> comma
@@ -14,7 +22,7 @@ comparison  -> term ( ( "<" | "<=" | ">" | ">=") term )* ;
 term        -> factor ( ( "-" | "+" ) factor )* ;
 factor      -> unary ( ( "/" | "*" ) unary )* ;
 unary       -> ( "!" | "-" ) unary | primary
-primary     -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")"
+primary     -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER 
 ```
 
 ## What's new

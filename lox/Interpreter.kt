@@ -2,12 +2,18 @@ package lox
 
 class Interpreter {
 
-    fun interpret(expr: Expr) {
+    fun interpret(stmts: List<Stmt>) {
         return try {
-            val value = evaluate(expr)
-            println(stringify(value))
+           stmts.forEach { stmt -> execute(stmt) }
         } catch (error: RuntimeError) {
             runtimeError(error)
+        }
+    }
+
+    private fun execute(stmt: Stmt) {
+        when (stmt) {
+            is Expression -> executeExprStatement(stmt)
+            is Print -> executePrintStatement(stmt)
         }
     }
 
@@ -17,6 +23,15 @@ class Interpreter {
         is Literal -> evaluateLiteral(expr)
         is Ternary -> evaluateTernary(expr)
         is Unary -> evaluateUnary(expr)
+    }
+
+    private fun executeExprStatement(stmt: Expression) {
+        evaluate(stmt.expression)
+    }
+
+    private fun executePrintStatement(stmt: Print){
+        val value = evaluate(stmt.expression)
+        println(stringify(value))
     }
 
     private fun evaluateTernary(expr: Ternary): Any? {

@@ -1,0 +1,3 @@
+print "ser o no ser";
+print true;
+print 10 + 50;
