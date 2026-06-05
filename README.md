@@ -14,9 +14,10 @@ printStmt     -> "print" expression ";" ;
 
 Expressions
 
-expression  -> comma
-comma       -> condition ("," condition)*
-condition   -> equality (? expression : condition)?
+expression  -> assignment
+assignment  -> IDENTIFIER "=" assignment | comma
+comma       -> condition ( "," condition )*
+condition   -> equality ( "?" expression ":" condition )?
 equality    -> comparison ( ( "!=" | "==" ) comparison )*
 comparison  -> term ( ( "<" | "<=" | ">" | ">=") term )* ;
 term        -> factor ( ( "-" | "+" ) factor )* ;

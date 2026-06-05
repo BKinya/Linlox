@@ -2,6 +2,8 @@ package lox
 
 class Interpreter {
 
+    private val environment = Environment()
+
     fun interpret(stmts: List<Stmt>) {
         return try {
            stmts.forEach { stmt -> execute(stmt) }
@@ -14,6 +16,7 @@ class Interpreter {
         when (stmt) {
             is Expression -> executeExprStatement(stmt)
             is Print -> executePrintStatement(stmt)
+            is Var -> executerVarStatement(stmt)
         }
     }
 
@@ -23,7 +26,9 @@ class Interpreter {
         is Literal -> evaluateLiteral(expr)
         is Ternary -> evaluateTernary(expr)
         is Unary -> evaluateUnary(expr)
+        is Variable -> evaluateVariable(expr)
     }
+
 
     private fun executeExprStatement(stmt: Expression) {
         evaluate(stmt.expression)
@@ -32,6 +37,15 @@ class Interpreter {
     private fun executePrintStatement(stmt: Print){
         val value = evaluate(stmt.expression)
         println(stringify(value))
+    }
+    private fun executerVarStatement(stmt: Var) {
+        var value: Any? = null
+
+        if (stmt.initializer  != null){
+            value = evaluate(stmt.initializer)
+        }
+
+        environment.define(stmt.name.lexeme, value)
     }
 
     private fun evaluateTernary(expr: Ternary): Any? {
@@ -62,9 +76,13 @@ class Interpreter {
         }
     }
 
+    private fun evaluateVariable(expr: Variable): Any? {
+        return environment.get(expr.name)
+    }
+
     private fun checkNumberOperand(operator: Token, right: Any?) {
         if (right is Double) return
-        throw RuntimeError(operator, "Operad must be a number")
+        throw RuntimeError(operator, "Operand must be a number")
     }
 
     private fun checkNumberOperands(operator: Token, left: Any?, right: Any?) {

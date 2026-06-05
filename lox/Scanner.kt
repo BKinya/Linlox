@@ -80,7 +80,7 @@ class Scanner(private val source: String) {
             return
         }
 
-        // found */ so consume both
+        // found '*/' so consume both
         advance()
         advance()
     }

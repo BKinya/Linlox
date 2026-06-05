@@ -16,7 +16,9 @@ class Parser(private val tokens: List<Token>) {
 
     private fun declaration(): Stmt {
         try {
-            if (match(TokenType.VAR)) return varDeclaration()
+            if (match(TokenType.VAR)) {
+                return varDeclaration()
+            }
             return statement()
         } catch (error: ParseError) {
             synchronize()

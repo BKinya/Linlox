@@ -5,22 +5,25 @@ Lox interpreter implementation written in Kotlin
 
 ```ebnf
 
-program    -> statement* EOF ;
-statement  -> exprStmt | printStmt ;
-exprStmt   -> expression ";" ;
-printStmt  -> "print" expression ";" ;
+program       -> declarations* EOF ;
+declarations  -> varDecl | statement ;
+varDecl       -> "var" IDENTIFIER ( "=" expression )? ";" ;
+statement     -> exprStmt | printStmt ;
+exprStmt      -> expression ";" ;
+printStmt     -> "print" expression ";" ;
 
 Expressions
 
-expression  -> comma
-comma       -> condition ("," condition)*
-condition   -> equality (? expression : condition)?
+expression  -> assignment
+assignment  -> IDENTIFIER "=" assignment | comma
+comma       -> condition ( "," condition )*
+condition   -> equality ( "?" expression ":" condition )?
 equality    -> comparison ( ( "!=" | "==" ) comparison )*
 comparison  -> term ( ( "<" | "<=" | ">" | ">=") term )* ;
 term        -> factor ( ( "-" | "+" ) factor )* ;
 factor      -> unary ( ( "/" | "*" ) unary )* ;
 unary       -> ( "!" | "-" ) unary | primary
-primary     -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")"
+primary     -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER 
 ```
 
 ## What's new

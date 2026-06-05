@@ -21,6 +21,7 @@ fun Expr.evaluate(): String = when (this) {
     is Literal -> evaluateLiteral()
     is Unary -> evaluateUnary()
     is Ternary -> evaluateTernary()
+    is Variable -> evaluateVariable()
 }
 
 fun Ternary.evaluateTernary(): String {
@@ -41,6 +42,10 @@ fun Grouping.evaluateGrouping(): String {
 
 fun Literal.evaluateLiteral(): String {
     return value?.toString() ?: "nil"
+}
+
+fun Variable.evaluateVariable(): String{
+    return "${name.lexeme} ${name.literal}"
 }
 
 private fun parenthesize(name: String, vararg exprs: Expr): String {
