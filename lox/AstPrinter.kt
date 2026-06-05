@@ -22,6 +22,7 @@ fun Expr.evaluate(): String = when (this) {
     is Unary -> evaluateUnary()
     is Ternary -> evaluateTernary()
     is Variable -> evaluateVariable()
+    else -> {"Not implemented yet"}
 }
 
 fun Ternary.evaluateTernary(): String {

@@ -27,8 +27,8 @@ class Interpreter {
         is Ternary -> evaluateTernary(expr)
         is Unary -> evaluateUnary(expr)
         is Variable -> evaluateVariable(expr)
+        is Assignment -> evaluateAssignment(expr)
     }
-
 
     private fun executeExprStatement(stmt: Expression) {
         evaluate(stmt.expression)
@@ -46,6 +46,12 @@ class Interpreter {
         }
 
         environment.define(stmt.name.lexeme, value)
+    }
+
+    private fun evaluateAssignment(expr: Assignment): Any? {
+        val value = evaluate(expr.value)
+        environment.assign(expr.name, value)
+        return value
     }
 
     private fun evaluateTernary(expr: Ternary): Any? {

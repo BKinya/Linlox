@@ -1,5 +1,8 @@
 package lox
 
+import com.sun.jdi.Value
+import kotlin.math.exp
+
 class Parser(private val tokens: List<Token>) {
 
     private class ParseError : RuntimeException()
@@ -31,7 +34,7 @@ class Parser(private val tokens: List<Token>) {
 
         var initializer: Expr? = null
 
-        if (match(TokenType.EQUAL)){
+        if (match(TokenType.EQUAL)) {
             initializer = expression()
         }
 
@@ -40,13 +43,13 @@ class Parser(private val tokens: List<Token>) {
 
     }
 
-    private fun statement(): Stmt{
-        if( match(TokenType.PRINT)) return printStatement()
+    private fun statement(): Stmt {
+        if (match(TokenType.PRINT)) return printStatement()
 
         return expressionStatement()
     }
 
-    private fun printStatement(): Stmt{
+    private fun printStatement(): Stmt {
         val value = expression()
         consume(TokenType.SEMICOLON, "Expect ';' after value")
         return Print(value)
@@ -77,10 +80,23 @@ class Parser(private val tokens: List<Token>) {
 
             // return dummy to keep the parser synchronized
             return Literal(null)
-
         }
+        return assignment()
+    }
 
-        return comma()
+    private fun assignment(): Expr {
+        val expr = comma()
+        if (match(TokenType.EQUAL)) {
+            val equals = previous()
+            val value = assignment()
+
+            if (expr is Variable) {
+                val name = expr.name
+                return Assignment(name, value)
+            }
+            error(equals, "Invalid assignment target.")
+        }
+        return expr
     }
 
     private fun comma(): Expr {
@@ -168,7 +184,7 @@ class Parser(private val tokens: List<Token>) {
             return Grouping(expr)
         }
 
-        if (match(TokenType.IDENTIFIER)){
+        if (match(TokenType.IDENTIFIER)) {
             return Variable(previous())
         }
 
@@ -228,7 +244,8 @@ class Parser(private val tokens: List<Token>) {
                 TokenType.RETURN,
                     -> return
 
-                else -> { /* Continue to advance*/ }
+                else -> { /* Continue to advance*/
+                }
             }
 
             advance()
