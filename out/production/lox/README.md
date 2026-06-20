@@ -6,9 +6,16 @@ Lox interpreter implementation written in Kotlin
 ```ebnf
 
 program       -> declarations* EOF ;
+
+Declarations
+
 declarations  -> varDecl | statement ;
 varDecl       -> "var" IDENTIFIER ( "=" expression )? ";" ;
-statement     -> exprStmt | printStmt ;
+
+Statements 
+
+statement     -> exprStmt | printStmt | block ;
+block         -> "{" declarations* "}" ;
 exprStmt      -> expression ";" ;
 printStmt     -> "print" expression ";" ;
 

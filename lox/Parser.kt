@@ -1,8 +1,5 @@
 package lox
 
-import com.sun.jdi.Value
-import kotlin.math.exp
-
 class Parser(private val tokens: List<Token>) {
 
     private class ParseError : RuntimeException()
@@ -45,8 +42,20 @@ class Parser(private val tokens: List<Token>) {
 
     private fun statement(): Stmt {
         if (match(TokenType.PRINT)) return printStatement()
+        if (match(TokenType.LEFT_BRACE)) return Block(block())
 
         return expressionStatement()
+    }
+
+    private fun block(): List<Stmt> {
+        val statements = mutableListOf<Stmt>()
+
+        while (!check(TokenType.RIGHT_BRACE) && !isAtEnd()) {
+            statements.add(declaration())
+        }
+
+        consume(TokenType.RIGHT_BRACE, "Expect '}' after block")
+        return statements
     }
 
     private fun printStatement(): Stmt {
@@ -60,6 +69,7 @@ class Parser(private val tokens: List<Token>) {
         consume(TokenType.SEMICOLON, "Expect ';' after value")
         return Expression(expr)
     }
+
 
     private fun expression(): Expr {
         /**

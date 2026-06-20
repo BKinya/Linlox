@@ -2,7 +2,7 @@ package lox
 
 class Interpreter {
 
-    private val environment = Environment()
+    private var environment = Environment()
 
     fun interpret(stmts: List<Stmt>) {
         return try {
@@ -17,17 +17,19 @@ class Interpreter {
             is Expression -> executeExprStatement(stmt)
             is Print -> executePrintStatement(stmt)
             is Var -> executerVarStatement(stmt)
+            is Block -> executeBlock(stmt.statements, Environment(environment))
         }
     }
 
-    private fun evaluate(expr: Expr): Any? = when (expr) {
-        is Binary -> evaluateBinary(expr)
-        is Grouping -> evaluateGrouping(expr)
-        is Literal -> evaluateLiteral(expr)
-        is Ternary -> evaluateTernary(expr)
-        is Unary -> evaluateUnary(expr)
-        is Variable -> evaluateVariable(expr)
-        is Assignment -> evaluateAssignment(expr)
+    private fun executeBlock(statements: List<Stmt>, environment: Environment) {
+        val previous = this.environment
+        try {
+           this.environment = environment
+            statements.forEach (::execute)
+        }finally {
+            this.environment = previous
+        }
+
     }
 
     private fun executeExprStatement(stmt: Expression) {
@@ -46,6 +48,16 @@ class Interpreter {
         }
 
         environment.define(stmt.name.lexeme, value)
+    }
+
+    private fun evaluate(expr: Expr): Any? = when (expr) {
+        is Binary -> evaluateBinary(expr)
+        is Grouping -> evaluateGrouping(expr)
+        is Literal -> evaluateLiteral(expr)
+        is Ternary -> evaluateTernary(expr)
+        is Unary -> evaluateUnary(expr)
+        is Variable -> evaluateVariable(expr)
+        is Assignment -> evaluateAssignment(expr)
     }
 
     private fun evaluateAssignment(expr: Assignment): Any? {
