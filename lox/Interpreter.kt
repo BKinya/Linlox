@@ -48,12 +48,7 @@ class Interpreter {
     }
 
     private fun executerVarStatement(stmt: Var) {
-        var value: Any? = null
-
-        if (stmt.initializer != null) {
-            value = evaluate(stmt.initializer)
-        }
-
+        val value: Any = stmt.initializer ?.let { evaluate(it) } ?: Uninitialized
         environment.define(stmt.name.lexeme, value)
     }
 

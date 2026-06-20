@@ -6,7 +6,11 @@ class Environment(val enclosing: Environment? = null) {
 
     fun get(name: Token): Any?{
         if (values.containsKey(name.lexeme)){
-            return values[name.lexeme]
+            val value = values[name.lexeme]
+            if (value is Uninitialized){
+                throw RuntimeError(name, "Uninitialized variable '${name.lexeme}'.")
+            }
+            return value
         }
 
         if (enclosing != null) return enclosing.get(name)
@@ -32,3 +36,6 @@ class Environment(val enclosing: Environment? = null) {
         values[name] = value
     }
 }
+
+// Marker for the uninitialized variable
+object Uninitialized
