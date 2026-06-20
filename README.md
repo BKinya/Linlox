@@ -22,7 +22,7 @@ printStmt     -> "print" expression ";" ;
 Expressions
 
 expression  -> assignment ;
-assignment  -> IDENTIFIER "=" assignment | comma ;
+assignment  -> comma ("=" assignment )* ;
 comma       -> condition ( "," condition )* ;
 condition   -> equality ( "?" expression ":" condition )? ;
 equality    -> comparison ( ( "!=" | "==" ) comparison )* ;
