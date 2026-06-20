@@ -55,24 +55,26 @@ private fun run(source: String) {
 
     if (hadError) return
 
-     interpreter.interpret(expressions)
+    interpreter.interpret(expressions)
 }
 
 fun error(line: Int, message: String) {
     report(line, "", "Error: $message")
 }
 
-private fun report(line: Int, where: String, message: String) {
-    System.err.println("[line $line] Error $where: $message")
+private fun report(line: Int, where: String, message: String, allowSilentErrors: Boolean = false) {
+    if (!allowSilentErrors) {
+        System.err.println("[line $line] Error $where: $message")
+    }
     hadError = true
 }
 
 
-fun error(token: Token, message: String) {
+fun error(token: Token, message: String, allowSilentErrors: Boolean) {
     if (token.type == TokenType.EOF) {
         report(token.line, "at end", message)
     } else {
-        report(token.line, "at '${token.lexeme}'", message)
+        report(token.line, "at '${token.lexeme}'", message, allowSilentErrors)
     }
 }
 

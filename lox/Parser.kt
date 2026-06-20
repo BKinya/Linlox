@@ -5,9 +5,31 @@ class Parser(private val tokens: List<Token>) {
     private class ParseError : RuntimeException()
 
     private var current = 0
+    private var allowSilentErrors = false
 
     fun parse(): List<Stmt> {
         val statements = mutableListOf<Stmt>()
+
+        // save current token position in case we'll need to backtrack
+        val startToken = current
+        try {
+            // stop the parse from printing errors for REPL
+            allowSilentErrors = true
+            val expr = expression()
+            allowSilentErrors = false
+            // If we successfully parsed an expression AND consumed all input,
+            // treat it as an interactive REPL command.
+            if (isAtEnd()) {
+                statements.add(InlineResult(expr))
+                return statements
+            }
+        } catch (_: ParseError) {
+            allowSilentErrors = false
+            // If it wasn't a bare expression, backtrack to start
+            current = startToken
+            hadError = false
+        }
+
         while (!isAtEnd()) {
             statements.add(declaration())
         }
@@ -233,7 +255,7 @@ class Parser(private val tokens: List<Token>) {
     private fun previous(): Token = tokens[current - 1]
 
     private fun error(token: Token, message: String): ParseError {
-        lox.error(token, message)
+        error(token, message, allowSilentErrors)
 
         return ParseError()
     }

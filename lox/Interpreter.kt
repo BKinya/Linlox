@@ -6,7 +6,7 @@ class Interpreter {
 
     fun interpret(stmts: List<Stmt>) {
         return try {
-           stmts.forEach { stmt -> execute(stmt) }
+            stmts.forEach { stmt -> execute(stmt) }
         } catch (error: RuntimeError) {
             runtimeError(error)
         }
@@ -18,15 +18,21 @@ class Interpreter {
             is Print -> executePrintStatement(stmt)
             is Var -> executerVarStatement(stmt)
             is Block -> executeBlock(stmt.statements, Environment(environment))
+            is InlineResult -> executeInlineResult(stmt)
         }
+    }
+
+    private fun executeInlineResult(stmt: InlineResult) {
+        val value = evaluate(stmt.expr)
+        println(stringify(value))
     }
 
     private fun executeBlock(statements: List<Stmt>, environment: Environment) {
         val previous = this.environment
         try {
-           this.environment = environment
-            statements.forEach (::execute)
-        }finally {
+            this.environment = environment
+            statements.forEach(::execute)
+        } finally {
             this.environment = previous
         }
 
@@ -36,14 +42,15 @@ class Interpreter {
         evaluate(stmt.expression)
     }
 
-    private fun executePrintStatement(stmt: Print){
+    private fun executePrintStatement(stmt: Print) {
         val value = evaluate(stmt.expression)
         println(stringify(value))
     }
+
     private fun executerVarStatement(stmt: Var) {
         var value: Any? = null
 
-        if (stmt.initializer  != null){
+        if (stmt.initializer != null) {
             value = evaluate(stmt.initializer)
         }
 
