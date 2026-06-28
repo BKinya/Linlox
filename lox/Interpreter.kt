@@ -18,7 +18,16 @@ class Interpreter {
             is Print -> executePrintStatement(stmt)
             is Var -> executerVarStatement(stmt)
             is Block -> executeBlock(stmt.statements, Environment(environment))
+            is If -> executeIf(stmt)
             is InlineResult -> executeInlineResult(stmt)
+        }
+    }
+
+    private fun executeIf(stmt: If) {
+        if (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.thenBranch)
+        } else if(stmt.elseBranch != null){
+            execute(stmt.elseBranch)
         }
     }
 

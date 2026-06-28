@@ -1,5 +1,7 @@
 package lox
 
+import com.sun.jdi.Value
+
 class Parser(private val tokens: List<Token>) {
 
     private class ParseError : RuntimeException()
@@ -63,6 +65,7 @@ class Parser(private val tokens: List<Token>) {
     }
 
     private fun statement(): Stmt {
+        if (match(TokenType.IF)) return ifStatement()
         if (match(TokenType.PRINT)) return printStatement()
         if (match(TokenType.LEFT_BRACE)) return Block(block())
 
@@ -78,6 +81,21 @@ class Parser(private val tokens: List<Token>) {
 
         consume(TokenType.RIGHT_BRACE, "Expect '}' after block")
         return statements
+    }
+
+    private fun ifStatement(): Stmt {
+        consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'")
+        val condition = expression()
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition")
+
+        val thenBranch = statement()
+        var elseBranch: Stmt? = null
+        if (match(TokenType.ELSE)) {
+            elseBranch = statement()
+        }
+
+        return If(condition, thenBranch, elseBranch)
+
     }
 
     private fun printStatement(): Stmt {
