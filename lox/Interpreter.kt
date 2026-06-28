@@ -19,7 +19,14 @@ class Interpreter {
             is Var -> executerVarStatement(stmt)
             is Block -> executeBlock(stmt.statements, Environment(environment))
             is If -> executeIf(stmt)
+            is While -> executeWhile(stmt)
             is InlineResult -> executeInlineResult(stmt)
+        }
+    }
+
+    private fun executeWhile(stmt: While) {
+        while (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.body)
         }
     }
 
