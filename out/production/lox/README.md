@@ -14,7 +14,8 @@ varDecl       -> "var" IDENTIFIER ( "=" expression )? ";" ;
 
 Statements 
 
-statement     -> exprStmt | printStmt | block ;
+statement     -> exprStmt | ifStmt | printStmt | block ;
+ifStmt        -> "if" "(" expression ")" statement ( "else" statement )? ;
 block         -> "{" declarations* "}" ;
 exprStmt      -> expression ";" ;
 printStmt     -> "print" expression ";" ;
@@ -23,7 +24,9 @@ Expressions
 
 expression  -> assignment ;
 assignment  -> comma ( "=" assignment )* ;
-comma       -> condition ( "," condition )* ;
+comma       -> logic_or ( "," logic_or )* ;
+logic_or    -> logic_and ( "or" logic_and )* ;
+logic_and   -> condition ( "and" condition )* ;
 condition   -> equality ( "?" expression ":" condition )? ;
 equality    -> comparison ( ( "!=" | "==" ) comparison )* ;
 comparison  -> term ( ( "<" | "<=" | ">" | ">=") term )* ;
@@ -39,7 +42,7 @@ This implementation includes several enhancements beyond standard Lox specificat
 - [Comma operator](https://en.wikipedia.org/wiki/Comma_operator): Evaluates expressions sequentially frrom left to right,
 discards the early results and returns the final value
 ```kotlin
-var x =  (1, 3, 4); // x  is 4
+var x =  (1, 3, 4); // x is 4
 ```
 
 - Ternary operator

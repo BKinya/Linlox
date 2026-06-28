@@ -150,12 +150,35 @@ class Parser(private val tokens: List<Token>) {
     }
 
     private fun comma(): Expr {
-        var expr = condition()
+        var expr = or()
         while (match(TokenType.COMMA)) {
             val operator = previous()
-            val right = condition()
+            val right = or()
             expr = Binary(expr, operator, right)
         }
+        return expr
+    }
+
+    private fun  or(): Expr{
+        var expr = and()
+
+        while (match(TokenType.OR)){
+            val operator = previous()
+            val right = and()
+            expr = Logical(expr, operator, right)
+        }
+        return expr
+    }
+
+    private fun and(): Expr{
+        var expr = condition()
+
+        while (match(TokenType.AND)){
+            val operator = previous()
+            val right = condition()
+            expr = Logical(expr, operator, right)
+        }
+
         return expr
     }
 

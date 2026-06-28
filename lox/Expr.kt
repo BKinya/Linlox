@@ -9,5 +9,6 @@ data class Grouping(val expression: Expr) : Expr
 data class Unary(val operator: Token, val right: Expr) : Expr
 data class Literal(val value: Any?) : Expr
 data class Variable(val name: Token) : Expr
+data class Logical(val left: Expr, val operator: Token, val right: Expr) : Expr
 
 

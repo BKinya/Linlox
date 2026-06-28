@@ -69,12 +69,25 @@ class Interpreter {
         is Unary -> evaluateUnary(expr)
         is Variable -> evaluateVariable(expr)
         is Assignment -> evaluateAssignment(expr)
+        is Logical -> evaluateLogical(expr)
     }
 
     private fun evaluateAssignment(expr: Assignment): Any? {
         val value = evaluate(expr.value)
         environment.assign(expr.name, value)
         return value
+    }
+
+    private fun evaluateLogical(expr: Logical): Any? {
+        val left = evaluate(expr.left)
+
+        if (expr.operator.type == TokenType.OR){
+            if (isTruthy(left)) return left
+        } else {
+            if (!isTruthy(left)) return left
+        }
+
+        return evaluate(expr.right)
     }
 
     private fun evaluateTernary(expr: Ternary): Any? {

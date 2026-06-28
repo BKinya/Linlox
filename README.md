@@ -24,7 +24,9 @@ Expressions
 
 expression  -> assignment ;
 assignment  -> comma ( "=" assignment )* ;
-comma       -> condition ( "," condition )* ;
+comma       -> logic_or ( "," logic_or )* ;
+logic_or    -> logic_and ( "or" logic_and )* ;
+logic_and   -> condition ( "and" condition )* ;
 condition   -> equality ( "?" expression ":" condition )? ;
 equality    -> comparison ( ( "!=" | "==" ) comparison )* ;
 comparison  -> term ( ( "<" | "<=" | ">" | ">=") term )* ;
