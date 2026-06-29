@@ -2,6 +2,7 @@ package lox
 
 class Interpreter {
 
+    private class BreakException: RuntimeException()
     private var environment = Environment()
 
     fun interpret(stmts: List<Stmt>) {
@@ -21,12 +22,23 @@ class Interpreter {
             is If -> executeIf(stmt)
             is While -> executeWhile(stmt)
             is InlineResult -> executeInlineResult(stmt)
+            is Break -> executeBreakStatement()
         }
     }
 
+    private fun executeBreakStatement() {
+        throw BreakException()
+    }
+
     private fun executeWhile(stmt: While) {
-        while (isTruthy(evaluate(stmt.condition))) {
-            execute(stmt.body)
+
+        try {
+            while (isTruthy(evaluate(stmt.condition))) {
+                execute(stmt.body)
+            }
+        } catch (ex: BreakException){
+            // Do nothing
+            // Catching the exception breaks us out of the while loop completely
         }
     }
 

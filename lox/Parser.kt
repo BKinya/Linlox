@@ -1,13 +1,14 @@
 package lox
 
-import com.sun.jdi.Value
-
 class Parser(private val tokens: List<Token>) {
 
     private class ParseError : RuntimeException()
 
     private var current = 0
     private var allowSilentErrors = false
+
+    // Tracks how deeply nested we are in the loops
+    private var loopDepth = 0
 
     fun parse(): List<Stmt> {
         val statements = mutableListOf<Stmt>()
@@ -70,6 +71,7 @@ class Parser(private val tokens: List<Token>) {
         if (match(TokenType.PRINT)) return printStatement()
         if (match(TokenType.WHILE)) return whileStatement()
         if (match(TokenType.LEFT_BRACE)) return Block(block())
+        if (match(TokenType.BREAK)) return breakStatement()
 
         return expressionStatement()
     }
@@ -83,6 +85,16 @@ class Parser(private val tokens: List<Token>) {
 
         consume(TokenType.RIGHT_BRACE, "Expect '}' after block")
         return statements
+    }
+
+    private fun breakStatement(): Stmt{
+        val keyword = previous()
+
+        if (loopDepth == 0){
+            error(keyword, "'break' cannot be used outside of a loop")
+        }
+        consume(TokenType.SEMICOLON, "Expect ';' after 'break'")
+        return Break
     }
 
     private fun forStatement(): Stmt {
@@ -129,7 +141,9 @@ class Parser(private val tokens: List<Token>) {
         val condition = expression()
         consume(TokenType.RIGHT_PAREN, "Expect ')' after condition")
 
+        loopDepth++
         val body = statement()
+        loopDepth--
         return While(condition, body)
     }
 
