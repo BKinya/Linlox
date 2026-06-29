@@ -65,6 +65,7 @@ class Parser(private val tokens: List<Token>) {
     }
 
     private fun statement(): Stmt {
+        if (match(TokenType.FOR)) return forStatement()
         if (match(TokenType.IF)) return ifStatement()
         if (match(TokenType.PRINT)) return printStatement()
         if (match(TokenType.WHILE)) return whileStatement()
@@ -82,6 +83,45 @@ class Parser(private val tokens: List<Token>) {
 
         consume(TokenType.RIGHT_BRACE, "Expect '}' after block")
         return statements
+    }
+
+    private fun forStatement(): Stmt {
+        consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'")
+
+        var initializer: Stmt? = null
+        if (match(TokenType.SEMICOLON)) {
+            initializer = null
+        } else if(match(TokenType.VAR)) {
+            initializer = varDeclaration()
+        }else{
+            initializer = expressionStatement()
+        }
+
+        var condition: Expr? = null
+        if (!check(TokenType.SEMICOLON)){
+            condition = expression()
+        }
+        consume(TokenType.SEMICOLON, "Expect ';' after loop condition")
+
+        var increment: Expr? = null
+        if (!check(TokenType.RIGHT_PAREN)){
+            increment = expression()
+        }
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses")
+
+        var body = statement()
+        if (increment != null){
+           body = Block(listOf(body, Expression(increment)))
+        }
+
+        if (condition == null) condition = Literal(true)
+        body = While(condition, body)
+
+        if (initializer != null){
+            body = Block(listOf(initializer, body))
+        }
+        return body
+
     }
 
     private fun whileStatement(): Stmt {
@@ -169,10 +209,10 @@ class Parser(private val tokens: List<Token>) {
         return expr
     }
 
-    private fun  or(): Expr{
+    private fun or(): Expr {
         var expr = and()
 
-        while (match(TokenType.OR)){
+        while (match(TokenType.OR)) {
             val operator = previous()
             val right = and()
             expr = Logical(expr, operator, right)
@@ -180,10 +220,10 @@ class Parser(private val tokens: List<Token>) {
         return expr
     }
 
-    private fun and(): Expr{
+    private fun and(): Expr {
         var expr = condition()
 
-        while (match(TokenType.AND)){
+        while (match(TokenType.AND)) {
             val operator = previous()
             val right = condition()
             expr = Logical(expr, operator, right)
