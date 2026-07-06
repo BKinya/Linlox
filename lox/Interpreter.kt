@@ -1,9 +1,28 @@
 package lox
 
+
 class Interpreter {
 
-    private class BreakException: RuntimeException()
-    private var environment = Environment()
+    private class BreakException : RuntimeException()
+
+    val globals = Environment()
+    private var environment = globals
+
+    init {
+        globals.define("clock", object : LoxCallable {
+            override fun arity(): Int = 0
+
+            override fun call(
+                interpreter: Interpreter,
+                arguments: List<Any?>
+            ): Any {
+                return (System.currentTimeMillis() / 1000).toDouble()
+            }
+
+            override fun toString(): String = "<native fn>"
+
+        })
+    }
 
     fun interpret(stmts: List<Stmt>) {
         return try {
@@ -23,7 +42,13 @@ class Interpreter {
             is While -> executeWhile(stmt)
             is InlineResult -> executeInlineResult(stmt)
             is Break -> executeBreakStatement()
+            is Function -> executeFunctionStmt(stmt)
         }
+    }
+
+    private fun executeFunctionStmt(stmt: Function) {
+        val function = LoxFunction(stmt)
+        environment.define(stmt.name.lexeme, function)
     }
 
     private fun executeBreakStatement() {
@@ -36,7 +61,7 @@ class Interpreter {
             while (isTruthy(evaluate(stmt.condition))) {
                 execute(stmt.body)
             }
-        } catch (ex: BreakException){
+        } catch (ex: BreakException) {
             // Do nothing
             // Catching the exception breaks us out of the while loop completely
         }
@@ -45,7 +70,7 @@ class Interpreter {
     private fun executeIf(stmt: If) {
         if (isTruthy(evaluate(stmt.condition))) {
             execute(stmt.thenBranch)
-        } else if(stmt.elseBranch != null){
+        } else if (stmt.elseBranch != null) {
             execute(stmt.elseBranch)
         }
     }
@@ -55,7 +80,7 @@ class Interpreter {
         println(stringify(value))
     }
 
-    private fun executeBlock(statements: List<Stmt>, environment: Environment) {
+    fun executeBlock(statements: List<Stmt>, environment: Environment) {
         val previous = this.environment
         try {
             this.environment = environment
@@ -76,7 +101,7 @@ class Interpreter {
     }
 
     private fun executerVarStatement(stmt: Var) {
-        val value: Any = stmt.initializer ?.let { evaluate(it) } ?: Uninitialized
+        val value: Any = stmt.initializer?.let { evaluate(it) } ?: Uninitialized
         environment.define(stmt.name.lexeme, value)
     }
 
@@ -89,6 +114,7 @@ class Interpreter {
         is Variable -> evaluateVariable(expr)
         is Assignment -> evaluateAssignment(expr)
         is Logical -> evaluateLogical(expr)
+        is Call -> evaluateCall(expr)
     }
 
     private fun evaluateAssignment(expr: Assignment): Any? {
@@ -100,7 +126,7 @@ class Interpreter {
     private fun evaluateLogical(expr: Logical): Any? {
         val left = evaluate(expr.left)
 
-        if (expr.operator.type == TokenType.OR){
+        if (expr.operator.type == TokenType.OR) {
             if (isTruthy(left)) return left
         } else {
             if (!isTruthy(left)) return left
@@ -217,6 +243,29 @@ class Interpreter {
 
             else -> null
         }
+    }
+
+    private fun evaluateCall(expr: Call): Any? {
+        val callee = evaluate(expr.callee)
+
+        val arguments = mutableListOf<Any?>()
+        expr.arguments.forEach {
+            arguments.add(evaluate(it))
+        }
+
+        if (callee !is LoxCallable) {
+            throw RuntimeError(expr.paren, "Can only call functions and classes")
+        }
+
+        val function: LoxCallable = callee
+        if (arguments.size != callee.arity()) {
+            throw RuntimeError(
+                expr.paren,
+                "Expected ${callee.arity()} arguments but got ${arguments.size}"
+            )
+        }
+        return function.call(this, arguments)
+
     }
 
     /**

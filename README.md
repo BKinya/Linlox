@@ -9,7 +9,10 @@ program       -> declarations* EOF ;
 
 Declarations
 
-declarations  -> varDecl | statement ;
+declarations  -> funDecl | varDecl | statement ;
+funDecl      -> "fun" fucntion ;
+function      -> IDENTIFIER "(" parameters? ")" block ;
+parameters    -> IDENTIFIER ( "," IDENTIFIER )* ;
 varDecl       -> "var" IDENTIFIER ( "=" expression )? ";" ;
 
 Statements 
@@ -35,7 +38,9 @@ equality    -> comparison ( ( "!=" | "==" ) comparison )* ;
 comparison  -> term ( ( "<" | "<=" | ">" | ">=") term )* ;
 term        -> factor ( ( "-" | "+" ) factor )* ;
 factor      -> unary ( ( "/" | "*" ) unary )* ;
-unary       -> ( "!" | "-" ) unary | primary ;
+unary       -> ( "!" | "-" ) unary | call ;
+call        -> primary ( "(" arguments? ")" )*  ;
+arguments   -> expression ( "," expression )* ;
 primary     -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
 ```
 

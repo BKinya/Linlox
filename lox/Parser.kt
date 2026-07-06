@@ -41,14 +41,38 @@ class Parser(private val tokens: List<Token>) {
 
     private fun declaration(): Stmt {
         try {
-            if (match(TokenType.VAR)) {
-                return varDeclaration()
-            }
+            if (match(TokenType.FUN)) return funDeclaration("function")
+            if (match(TokenType.VAR)) return varDeclaration()
+
             return statement()
         } catch (error: ParseError) {
             synchronize()
             return Expression(Literal(null))
         }
+    }
+
+    private fun funDeclaration(kind: String): Stmt {
+        val name = consume(TokenType.IDENTIFIER, "Expect $kind name")
+
+        consume(TokenType.LEFT_PAREN, "Except '(' after $kind name")
+        val parameters = mutableListOf<Token>()
+
+        if (!check(TokenType.RIGHT_PAREN)) {
+            do {
+                if (parameters.size >= 255) {
+                    error(peek(), "Can't ha e more than 255 parameters")
+                }
+                parameters.add(
+                    consume(TokenType.IDENTIFIER, "Expect parameter name/")
+                )
+            } while (match(TokenType.COMMA))
+        }
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters")
+
+        consume(TokenType.LEFT_BRACE, "Expect '{' before $kind body")
+        val body = block()
+
+        return Function(name, parameters, body)
     }
 
     private fun varDeclaration(): Stmt {
@@ -87,10 +111,10 @@ class Parser(private val tokens: List<Token>) {
         return statements
     }
 
-    private fun breakStatement(): Stmt{
+    private fun breakStatement(): Stmt {
         val keyword = previous()
 
-        if (loopDepth == 0){
+        if (loopDepth == 0) {
             error(keyword, "'break' cannot be used outside of a loop")
         }
         consume(TokenType.SEMICOLON, "Expect ';' after 'break'")
@@ -103,33 +127,33 @@ class Parser(private val tokens: List<Token>) {
         var initializer: Stmt? = null
         if (match(TokenType.SEMICOLON)) {
             initializer = null
-        } else if(match(TokenType.VAR)) {
+        } else if (match(TokenType.VAR)) {
             initializer = varDeclaration()
-        }else{
+        } else {
             initializer = expressionStatement()
         }
 
         var condition: Expr? = null
-        if (!check(TokenType.SEMICOLON)){
+        if (!check(TokenType.SEMICOLON)) {
             condition = expression()
         }
         consume(TokenType.SEMICOLON, "Expect ';' after loop condition")
 
         var increment: Expr? = null
-        if (!check(TokenType.RIGHT_PAREN)){
+        if (!check(TokenType.RIGHT_PAREN)) {
             increment = expression()
         }
         consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses")
 
         var body = statement()
-        if (increment != null){
-           body = Block(listOf(body, Expression(increment)))
+        if (increment != null) {
+            body = Block(listOf(body, Expression(increment)))
         }
 
         if (condition == null) condition = Literal(true)
         body = While(condition, body)
 
-        if (initializer != null){
+        if (initializer != null) {
             body = Block(listOf(initializer, body))
         }
         return body
@@ -217,7 +241,7 @@ class Parser(private val tokens: List<Token>) {
         var expr = or()
         while (match(TokenType.COMMA)) {
             val operator = previous()
-            val right = or()
+            val right = comma()
             expr = Binary(expr, operator, right)
         }
         return expr
@@ -306,7 +330,36 @@ class Parser(private val tokens: List<Token>) {
             val right = unary()
             return Unary(operator, right)
         }
-        return primary()
+        return call()
+    }
+
+    private fun call(): Expr {
+        var expr = primary()
+
+        while (true) {
+            if (match(TokenType.LEFT_PAREN)) {
+                expr = finishCall(expr)
+            } else {
+                break
+            }
+        }
+        return expr
+    }
+
+    private fun finishCall(callee: Expr): Expr {
+        val arguments = mutableListOf<Expr>()
+
+        if (!check(TokenType.RIGHT_PAREN)) {
+            do {
+                if (arguments.size >= 255) {
+                    error(peek(), "Can't have more than 255 arguments")
+                }
+                arguments.add(expression())
+            } while (match(TokenType.COMMA))
+        }
+
+        val paren = consume(TokenType.RIGHT_PAREN, "Except ')' after arguments.")
+        return Call(callee, paren, arguments)
     }
 
     private fun primary(): Expr {
