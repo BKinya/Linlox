@@ -1,9 +1,5 @@
-var a;
-var b;
-var c;
+fun sayHi(first, last) {
+  print "Hi, " + first + " " + last + "!";
+}
 
-a = 1, b = a + 2, c = a + b;
-
-print a;
-print b;
-print c;
+sayHi("Dear", ("Reader", "Best"));

@@ -70,7 +70,7 @@ class Parser(private val tokens: List<Token>) {
                     error(peek(), "Can't ha e more than 255 parameters")
                 }
                 parameters.add(
-                    consume(TokenType.IDENTIFIER, "Expect parameter name/")
+                    consume(TokenType.IDENTIFIER, "Expect parameter name")
                 )
             } while (match(TokenType.COMMA))
         }
@@ -361,7 +361,7 @@ class Parser(private val tokens: List<Token>) {
                 if (arguments.size >= 255) {
                     error(peek(), "Can't have more than 255 arguments")
                 }
-                arguments.add(expression())
+                arguments.add(assignment())
             } while (match(TokenType.COMMA))
         }
 

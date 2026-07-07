@@ -40,7 +40,7 @@ term        -> factor ( ( "-" | "+" ) factor )* ;
 factor      -> unary ( ( "/" | "*" ) unary )* ;
 unary       -> ( "!" | "-" ) unary | call ;
 call        -> primary ( "(" arguments? ")" )*  ;
-arguments   -> expression ( "," expression )* ;
+arguments   -> assignment ( "," assignment )* ;
 primary     -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
 ```
 

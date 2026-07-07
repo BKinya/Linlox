@@ -250,7 +250,9 @@ class Interpreter {
 
         val arguments = mutableListOf<Any?>()
         expr.arguments.forEach {
-            arguments.add(evaluate(it))
+            arguments.add(
+                evaluate(it)
+            )
         }
 
         if (callee !is LoxCallable) {
