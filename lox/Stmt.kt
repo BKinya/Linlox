@@ -10,6 +10,7 @@ data class Function(val name: Token, val params: List<Token>, val body: List<Stm
 data class If(val condition: Expr, val thenBranch: Stmt, val elseBranch: Stmt?) : Stmt
 data class While(val condition: Expr, val body: Stmt) : Stmt
 data object Break : Stmt
+data class ReturnS(val keyword: Token, val value: Expr?): Stmt
 
 /**
  * AST node to be used only by REPL

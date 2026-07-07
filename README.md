@@ -17,9 +17,10 @@ varDecl       -> "var" IDENTIFIER ( "=" expression )? ";" ;
 
 Statements 
 
-statement     -> exprStmt | forStmt | ifStmt | printStmt | whileStmt | block | break ;
+statement     -> exprStmt | forStmt | ifStmt | printStmt | returnStmt | whileStmt | block | break ;
 forStmt       -> "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;
 whileStmt     -> "while" "(" expression ")" statement ; 
+returnStmt    -> "return" expression? ";" ;
 ifStmt        -> "if" "(" expression ")" statement ( "else" statement )? ;
 block         -> "{" declarations* "}" ;
 exprStmt      -> expression ";" ;

@@ -103,7 +103,7 @@ class Parser(private val tokens: List<Token>) {
         if (match(TokenType.WHILE)) return whileStatement()
         if (match(TokenType.LEFT_BRACE)) return Block(block())
         if (match(TokenType.BREAK)) return breakStatement()
-
+        if (match(TokenType.RETURN)) return returnStatement()
         return expressionStatement()
     }
 
@@ -198,6 +198,17 @@ class Parser(private val tokens: List<Token>) {
         consume(TokenType.SEMICOLON, "Expect ';' after value")
         return Print(value)
     }
+    private fun returnStatement(): Stmt{
+        val keyword = previous()
+        var value: Expr? = null
+        if (!check(TokenType.SEMICOLON)){
+           value = expression()
+        }
+
+        consume(TokenType.SEMICOLON, "Expect ';' after return value")
+        return ReturnS(keyword, value)
+    }
+
 
     private fun expressionStatement(): Stmt {
         val expr = expression()

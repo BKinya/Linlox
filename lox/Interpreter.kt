@@ -43,7 +43,15 @@ class Interpreter {
             is InlineResult -> executeInlineResult(stmt)
             is Break -> executeBreakStatement()
             is Function -> executeFunctionStmt(stmt)
+            is ReturnS -> executeReturnStmt(stmt)
         }
+    }
+
+    private fun executeReturnStmt(stmt: ReturnS) {
+       var value: Any? = null
+        if (stmt.value != null) value = evaluate(stmt.value)
+
+        throw Return(value)
     }
 
     private fun executeFunctionStmt(stmt: Function) {
