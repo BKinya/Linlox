@@ -13,6 +13,10 @@ class Parser(private val tokens: List<Token>) {
     fun parse(): List<Stmt> {
         val statements = mutableListOf<Stmt>()
 
+        /*************************************************/
+        /* START IMPL SUPPORT FOR REPL *******************/
+        /*************************************************/
+
         // save current token position in case we'll need to backtrack
         val startToken = current
         try {
@@ -32,6 +36,9 @@ class Parser(private val tokens: List<Token>) {
             current = startToken
             hadError = false
         }
+        /*************************************************/
+        /* END IMPL SUPPORT FOR REPL *******************/
+        /*************************************************/
 
         while (!isAtEnd()) {
             statements.add(declaration())
@@ -219,11 +226,21 @@ class Parser(private val tokens: List<Token>) {
             // return dummy to keep the parser synchronized
             return Literal(null)
         }
-        return assignment()
+        return comma()
+    }
+
+    private fun comma(): Expr {
+        var expr = assignment()
+        while (match(TokenType.COMMA)) {
+            val operator = previous()
+            val right = assignment()
+            expr = Binary(expr, operator, right)
+        }
+        return expr
     }
 
     private fun assignment(): Expr {
-        val expr = comma()
+        val expr = or()
         if (match(TokenType.EQUAL)) {
             val equals = previous()
             val value = assignment()
@@ -233,16 +250,6 @@ class Parser(private val tokens: List<Token>) {
                 return Assignment(name, value)
             }
             error(equals, "Invalid assignment target.")
-        }
-        return expr
-    }
-
-    private fun comma(): Expr {
-        var expr = or()
-        while (match(TokenType.COMMA)) {
-            val operator = previous()
-            val right = comma()
-            expr = Binary(expr, operator, right)
         }
         return expr
     }
