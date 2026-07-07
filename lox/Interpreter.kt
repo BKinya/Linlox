@@ -55,7 +55,7 @@ class Interpreter {
     }
 
     private fun executeFunctionStmt(stmt: Function) {
-        val function = LoxFunction(stmt)
+        val function = LoxFunction(stmt, environment)
         environment.define(stmt.name.lexeme, function)
     }
 
