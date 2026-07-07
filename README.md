@@ -28,9 +28,9 @@ break         -> "break" ";" ;
 
 Expressions
 
-expression  -> assignment ;
-assignment  -> comma ( "=" assignment )* ;
-comma       -> logic_or ( "," logic_or )* ;
+expression  -> comma ;
+comma        -> assignment ( "," assignment )* ;
+assignment  -> logic_or ( "=" assignment )? ;
 logic_or    -> logic_and ( "or" logic_and )* ;
 logic_and   -> condition ( "and" condition )* ;
 condition   -> equality ( "?" expression ":" condition )? ;
