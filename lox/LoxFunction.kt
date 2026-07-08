@@ -18,6 +18,6 @@ class LoxFunction(private val declaration: Function, private val closure: Enviro
         return null
     }
 
-    override fun toString(): String = "<fn ${declaration.name.lexeme}>"
+    override fun toString(): String = "<fn ${declaration.name?.lexeme}>"
 
 }

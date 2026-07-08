@@ -56,7 +56,7 @@ class Interpreter {
 
     private fun executeFunctionStmt(stmt: Function) {
         val function = LoxFunction(stmt, environment)
-        environment.define(stmt.name.lexeme, function)
+        environment.define(stmt.name?.lexeme ?: "unnamed", function)
     }
 
     private fun executeBreakStatement() {
@@ -123,6 +123,11 @@ class Interpreter {
         is Assignment -> evaluateAssignment(expr)
         is Logical -> evaluateLogical(expr)
         is Call -> evaluateCall(expr)
+        is AnonymousFunction -> evaluateAnonymousFunction(expr)
+    }
+
+    private fun evaluateAnonymousFunction(expr: AnonymousFunction): Any {
+        return LoxFunction(Function(null, expr.params, expr.body), environment)
     }
 
     private fun evaluateAssignment(expr: Assignment): Any? {

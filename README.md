@@ -9,11 +9,9 @@ program       -> declarations* EOF ;
 
 Declarations
 
-declarations  -> funDecl | varDecl | statement ;
-funDecl      -> "fun" fucntion ;
-function      -> IDENTIFIER "(" parameters? ")" block ;
-parameters    -> IDENTIFIER ( "," IDENTIFIER )* ;
-varDecl       -> "var" IDENTIFIER ( "=" expression )? ";" ;
+declarations        -> funDecl | varDecl | statement ;
+funDecl             -> "fun" IDENTIFIER functionBody ;
+varDecl             -> "var" IDENTIFIER ( "=" expression )? ";" ;
 
 Statements 
 
@@ -29,20 +27,23 @@ break         -> "break" ";" ;
 
 Expressions
 
-expression  -> comma ;
-comma        -> assignment ( "," assignment )* ;
-assignment  -> logic_or ( "=" assignment )? ;
-logic_or    -> logic_and ( "or" logic_and )* ;
-logic_and   -> condition ( "and" condition )* ;
-condition   -> equality ( "?" expression ":" condition )? ;
-equality    -> comparison ( ( "!=" | "==" ) comparison )* ;
-comparison  -> term ( ( "<" | "<=" | ">" | ">=") term )* ;
-term        -> factor ( ( "-" | "+" ) factor )* ;
-factor      -> unary ( ( "/" | "*" ) unary )* ;
-unary       -> ( "!" | "-" ) unary | call ;
-call        -> primary ( "(" arguments? ")" )*  ;
-arguments   -> assignment ( "," assignment )* ;
-primary     -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
+expression       -> comma  ;
+comma            -> assignment ( "," assignment )* ;
+assignment       -> logic_or ( "=" assignment )? ;
+logic_or         -> logic_and ( "or" logic_and )* ;
+logic_and        -> condition ( "and" condition )* ;
+condition        -> equality ( "?" expression ":" condition )? ;
+equality         -> comparison ( ( "!=" | "==" ) comparison )* ;
+comparison       -> term ( ( "<" | "<=" | ">" | ">=") term )* ;
+term             -> factor ( ( "-" | "+" ) factor )* ;
+factor           -> unary ( ( "/" | "*" ) unary )* ;
+unary            -> ( "!" | "-" ) unary | call ;
+call             -> primary ( "(" arguments? ")" )*  ;
+arguments        -> assignment ( "," assignment )* ;
+primary          -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER | anonymousFun;
+anonymousFun    -> "fun" functionBody ;
+functionBody    -> "(" parameters? ")" block;
+parameters      -> IDENTIFIER ( "," IDENTIFIER )* ;
 ```
 
 ## What's new

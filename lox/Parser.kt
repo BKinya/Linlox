@@ -1,5 +1,7 @@
 package lox
 
+import java.awt.geom.PathIterator
+
 class Parser(private val tokens: List<Token>) {
 
     private class ParseError : RuntimeException()
@@ -62,22 +64,8 @@ class Parser(private val tokens: List<Token>) {
         val name = consume(TokenType.IDENTIFIER, "Expect $kind name")
 
         consume(TokenType.LEFT_PAREN, "Except '(' after $kind name")
-        val parameters = mutableListOf<Token>()
 
-        if (!check(TokenType.RIGHT_PAREN)) {
-            do {
-                if (parameters.size >= 255) {
-                    error(peek(), "Can't ha e more than 255 parameters")
-                }
-                parameters.add(
-                    consume(TokenType.IDENTIFIER, "Expect parameter name")
-                )
-            } while (match(TokenType.COMMA))
-        }
-        consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters")
-
-        consume(TokenType.LEFT_BRACE, "Expect '{' before $kind body")
-        val body = block()
+        val (parameters, body) = parseFunctionBody()
 
         return Function(name, parameters, body)
     }
@@ -395,10 +383,41 @@ class Parser(private val tokens: List<Token>) {
         if (match(TokenType.IDENTIFIER)) {
             return Variable(previous())
         }
+        if (match(TokenType.FUN)){
+            return anonymousFunction()
+        }
 
         throw error(peek(), "Expect expression.")
     }
 
+    private fun anonymousFunction(): Expr {
+        consume(TokenType.LEFT_PAREN, "Expect '(' after 'fun'")
+
+        val (parameters, body) = parseFunctionBody()
+
+        return AnonymousFunction(parameters, body)
+    }
+
+    private fun parseFunctionBody(): Pair<List<Token>, List<Stmt>>{
+        val parameters = mutableListOf<Token>()
+
+        if (!check(TokenType.RIGHT_PAREN)) {
+            do {
+                if (parameters.size >= 255) {
+                    error(peek(), "Can't ha e more than 255 parameters")
+                }
+                parameters.add(
+                    consume(TokenType.IDENTIFIER, "Expect parameter name")
+                )
+            } while (match(TokenType.COMMA))
+        }
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters")
+
+        consume(TokenType.LEFT_BRACE, "Expect '{' before anonymous function body")
+        val body = block()
+
+        return Pair(parameters, body)
+    }
     private fun match(vararg types: TokenType): Boolean {
         for (type in types) {
             if (check(type)) {
