@@ -4,6 +4,5 @@ fun thrice(fn){
     }
 }
 
-thrice(fun(a){
-    print a;
-});
+var func = fun(a){ print a; };
+thrice(func);
