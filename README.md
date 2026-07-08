@@ -66,3 +66,5 @@ var result = isTrue ? "yes" : "no";
    multiline block comment
  */
 ```
+
+- Supports anonymous functions/lambdas 
